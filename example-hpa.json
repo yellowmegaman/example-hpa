@@ -1,0 +1,93 @@
+{
+  "variables": {
+    "app":             "{{env `DRONE_REPO_NAME`}}",
+    "from_image":      "{{env `FROM_IMAGE`}}",
+    "project_name":    "{{env `PROJECT_NAME`}}",
+    "docker_username": "{{env `DOCKER_USERNAME`}}",
+    "docker_password": "{{env `DOCKER_PASSWORD`}}",
+    "quay_username":   "{{env `QUAY_USERNAME`}}",
+    "quay_password":   "{{env `QUAY_PASSWORD`}}",
+    "tag":             "{{env `DRONE_COMMIT`}}"
+  },
+  "builders":[
+    {
+      "type": "docker",
+      "commit": true,
+      "image": "{{user `from_image`}}",
+      "run_command": ["-dit", "--name", "{{user `app`}}{{user `tag`}}", "{{.Image}}", "/bin/bash"],
+      "changes": [
+        "ENTRYPOINT [\"/bin/{{user `app`}}\"]"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+        "type": "file",
+        "source": "{{user `app`}}",
+        "destination": "/bin/{{user `app`}}"
+    },
+    {
+        "type": "shell",
+        "inline": [
+          "chmod 0755 /bin/{{user `app`}}"
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "docker-tag",
+        "repository": "docker.io/{{user `project_name`}}/{{user `app`}}",
+        "tag": "{{user `tag`}}"
+      },
+      {
+        "type": "docker-push",
+        "login": true,
+        "login_username": "{{user `docker_username`}}",
+        "login_password": "{{user `docker_password`}}"
+      }
+    ],
+    [
+      {
+        "type": "docker-tag",
+        "repository": "docker.io/{{user `project_name`}}/{{user `app`}}",
+        "tag": "latest"
+      },
+      {
+        "type": "docker-push",
+        "login": true,
+        "login_username": "{{user `docker_username`}}",
+        "login_password": "{{user `docker_password`}}"
+      }
+    ],
+    [
+      {
+        "type": "docker-tag",
+        "repository": "quay.io/{{user `project_name`}}/{{user `app`}}",
+        "tag": "{{user `tag`}}"
+      },
+      {
+        "type": "docker-push",
+        "login": true,
+        "login_server": "quay.io",
+        "login_username": "{{user `quay_username`}}",
+        "login_password": "{{user `quay_password`}}"
+      }
+    ],
+    [
+      {
+        "type": "docker-tag",
+        "repository": "quay.io/{{user `project_name`}}/{{user `app`}}",
+        "tag": "latest"
+      },
+      {
+        "type": "docker-push",
+        "login": true,
+        "login_server": "quay.io",
+        "login_username": "{{user `quay_username`}}",
+        "login_password": "{{user `quay_password`}}"
+      }
+    ]
+  ]
+}
+

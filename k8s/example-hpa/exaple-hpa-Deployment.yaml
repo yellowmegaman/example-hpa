@@ -1,0 +1,94 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: example-hpa
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: example-hpa
+  namespace: example-hpa
+  labels:
+    app: example-hpa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-hpa
+  template:
+    metadata:
+      labels:
+        app: example-hpa
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - example-hpa
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 1800
+      containers:
+      - name: example-hpa
+        image: quay.io/yellowmegaman/example-hpa:latest
+        command: ["/bin/example-hpa"]
+        imagePullPolicy: Always
+        ports:
+        - name: http-endpoint
+          containerPort: 8002
+        resources:
+          limits:
+            cpu: "50m"
+            memory: 128Mi
+          requests:
+            cpu: "50m"
+            memory: 128Mi
+        env:
+          - name: APIHOST
+            value: "0.0.0.0"
+          - name: APIPORT
+            value: "8002"
+          - name: PGDBNAME
+            value: "mydb"
+          - name: PGPORT
+            value: "5432"
+          - name: PGHOST
+            value: "stolon-proxy-service.postgres.svc.cluster.local"
+          - name: PGUSER
+            value: "myusername"
+          - name: PGPASS
+            valueFrom:
+              secretKeyRef:
+                name: pgcreds
+                key: password
+          - name: PGDBNAME
+            value: "mydb"
+        livenessProbe:
+          exec:
+            command:
+            - pgrep
+            - example
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: example-hpa
+  namespace: example-hpa
+  labels:
+    app: example-hpa
+spec:
+  clusterIP: None
+  ports:
+  - name: http-service
+    port: 8002
+  selector:
+    app: example-hpa
