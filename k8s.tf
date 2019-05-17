@@ -1,10 +1,10 @@
-resource "google_compute_address" "example-full-k8s-ip" {
-  name = "example-full-k8s-ip"
+resource "google_compute_address" "example-hpa-k8s-ip" {
+  name = "example-hpa-k8s-ip"
   region = "europe-west4"
 }
 
-resource "google_container_cluster" "example-full" {
-  name                     = "example-full"
+resource "google_container_cluster" "example-hpa" {
+  name                     = "example-hpa"
   location                 = "europe-west4-b"
   remove_default_node_pool = true
   initial_node_count       = 1
@@ -23,10 +23,10 @@ resource "google_container_cluster" "example-full" {
     }
   }
 }
-resource "google_container_node_pool" "example-full-n1s2-pool" {
-  name               = "example-full"
+resource "google_container_node_pool" "example-hpa-n1s2-pool" {
+  name               = "example-hpa"
   location           = "europe-west4-b"
-  cluster            = "${google_container_cluster.example-full.name}"
+  cluster            = "${google_container_cluster.example-hpa.name}"
   initial_node_count = "7"
   autoscaling {
     min_node_count   = "4"

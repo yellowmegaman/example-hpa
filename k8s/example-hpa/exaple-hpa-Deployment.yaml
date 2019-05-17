@@ -48,26 +48,6 @@ spec:
           requests:
             cpu: "50m"
             memory: 128Mi
-        env:
-          - name: APIHOST
-            value: "0.0.0.0"
-          - name: APIPORT
-            value: "8002"
-          - name: PGDBNAME
-            value: "mydb"
-          - name: PGPORT
-            value: "5432"
-          - name: PGHOST
-            value: "stolon-proxy-service.postgres.svc.cluster.local"
-          - name: PGUSER
-            value: "myusername"
-          - name: PGPASS
-            valueFrom:
-              secretKeyRef:
-                name: pgcreds
-                key: password
-          - name: PGDBNAME
-            value: "mydb"
         livenessProbe:
           exec:
             command:
@@ -89,6 +69,6 @@ spec:
   clusterIP: None
   ports:
   - name: http-service
-    port: 8002
+    port: 5000
   selector:
     app: example-hpa
