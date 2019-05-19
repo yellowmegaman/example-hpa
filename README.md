@@ -2,7 +2,7 @@
 
 #### Prerequisites:
 1) Didn't use ssl certs
-2) Used this for webserver https://gist.github.com/enricofoltran/10b4a980cd07cb02836f70a4ab3e72d7 but basicall even nginx will do
+2) Used this for webserver https://gist.github.com/enricofoltran/10b4a980cd07cb02836f70a4ab3e72d7 but basically even nginx will do
 3) Used nginx-ingress-controller
 4) Used prometheus and stackdriver
 5) Used packer/drone.io for CD
