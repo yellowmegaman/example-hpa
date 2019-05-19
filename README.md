@@ -9,18 +9,18 @@
 
 #### Steps to launch:
 
-1) apply k8s.tf via terraform. This will create a cluster with nodepool, static ip and two dns records. In this example thoose are:
+1) apply k8s.tf via terraform. This will create a cluster with nodepool, static ip and two dns records. In this example those are:
  - hpa.oktanium.im
  - hpa-grafana.oktanium.im
  
-2) create namespace's moonitoring custom-metrics ingress-nginx
+2) create namespaces moonitoring custom-metrics ingress-nginx
 3) set ip from terraform in cloud-generic.yaml for ingress-nginx
-4) apply -R -f custom-metrics-stackdriver - this will setup custom-metrics server, which will give us ability to act upon them.
+4) apply -R -f custom-metrics-stackdriver - this will setup custom-metrics server, which will give us ability to act upon metrics.
 5) apply -R -f nginx-ingress-controller - this will setup nginx ingress controller with prometheus-to-sd sidecar. This sidecar will gather metrics from /metrics endpoing and route them to stackdriver custom-metrics. Could have used prometheus adapter, but this worked out of the box.
 5) k apply -R -f prometheus - this will setup 1 instance of prometheus and grafana. Also some clusterroles and clusterrolebindings for proper access, ingress for grafana too. This will also auto-provision our dashboard to watch example-hpa app. Cadvisor and Nginx metrics are used to get rps and replica count.
 6) k apply -R -f example-hpa - this will add HorizontalPodAutoscaler and our app to k8s. It will scale example-hpa app if rps is higher than 1/s.  With minium of 1 and max of 5 replicas.
 
-7) Now you start sending requests to http://hpa.oktanium.im and check dashboard.
+7) Now you start sending requests to http://hpa.oktanium.im and check dashboard at hpa-grafana.oktanium.im.
 
 ![image](https://user-images.githubusercontent.com/3943191/57987731-5c0fe100-7a8e-11e9-94e2-44dfb555bf60.png)
 
