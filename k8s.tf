@@ -1,10 +1,26 @@
-resource "google_compute_address" "example-hpa-k8s-ip" {
-  name = "example-hpa-k8s-ip"
+resource "google_compute_address" "hpa-k8s-ip" {
+  name = "hpa-k8s-ip"
   region = "europe-west4"
 }
 
-resource "google_container_cluster" "example-hpa" {
-  name                     = "example-hpa"
+resource "google_dns_record_set" "hpa-dns-record" {
+  name         = "hpa.oktanium.im."
+  type         = "A"
+  ttl          = "60"
+  managed_zone = "oktanium-zone"
+  rrdatas      = ["${google_compute_address.hpa-k8s-ip.address}"]
+}
+
+resource "google_dns_record_set" "hpa-grafana-dns-record" {
+  name         = "hpa-grafana.oktanium.im."
+  type         = "A"
+  ttl          = "60"
+  managed_zone = "oktanium-zone"
+  rrdatas      = ["${google_compute_address.hpa-k8s-ip.address}"]
+}
+
+resource "google_container_cluster" "hpa" {
+  name                     = "hpa"
   location                 = "europe-west4-b"
   remove_default_node_pool = true
   initial_node_count       = 1
@@ -23,13 +39,13 @@ resource "google_container_cluster" "example-hpa" {
     }
   }
 }
-resource "google_container_node_pool" "example-hpa-n1s2-pool" {
-  name               = "example-hpa"
+resource "google_container_node_pool" "hpa-n1s2-pool" {
+  name               = "hpa"
   location           = "europe-west4-b"
-  cluster            = "${google_container_cluster.example-hpa.name}"
-  initial_node_count = "7"
+  cluster            = "${google_container_cluster.hpa.name}"
+  initial_node_count = "5"
   autoscaling {
-    min_node_count   = "4"
+    min_node_count   = "5"
     max_node_count   = "14"
   }
   management {

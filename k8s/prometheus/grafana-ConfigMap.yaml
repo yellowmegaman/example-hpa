@@ -1,0 +1,58 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: grafana-ini
+  namespace: moonitoring
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/component: grafana
+data:
+  grafana.ini: |
+    [paths]
+    data = /var/lib/grafana/data
+    logs = /var/log/grafana
+    plugins = /var/lib/grafana/plugins
+    [server]
+    domain = hpa-grafana.oktanium.im
+    root_url = https://%(domain)s/
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: grafana-datasources
+  namespace: moonitoring
+  labels:
+    app.kubernetes.io/name: grafana
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - access: proxy
+      isDefault: true
+      name: prometheus
+      type: prometheus
+      url: http://prometheus.moonitoring.svc.cluster.local:9090
+      version: 1
+
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: grafana-dashboardproviders
+  namespace: moonitoring
+  labels:
+    app.kubernetes.io/name: grafana
+data:
+  dashboardproviders.yaml: |
+    apiVersion: 1
+    providers:
+    - disableDeletion: false
+      editable: true
+      folder: ""
+      name: default
+      options:
+        path: /var/lib/grafana/dashboards
+      orgId: 1
+      type: file

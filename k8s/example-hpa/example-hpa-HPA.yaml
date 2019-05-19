@@ -1,0 +1,21 @@
+---
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2beta1
+metadata:
+  name: example-hpa
+  namespace: moonitoring
+spec:
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: External
+    external:
+      metricName: "custom.googleapis.com|nginx-ingress-controller|nginx_ingress_controller_requests"
+      metricSelector:
+        matchLabels:
+          metric.labels.ingress: example-hpa-ingress
+      targetAverageValue: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: example-hpa

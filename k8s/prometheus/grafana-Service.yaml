@@ -1,0 +1,19 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: grafana
+  namespace: moonitoring
+  labels:
+    k8s-app: grafana
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/component: grafana
+spec:
+  ports:
+    - name: http
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  sessionAffinity: ClientIP
+  selector:
+    k8s-app: grafana
